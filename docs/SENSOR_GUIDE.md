@@ -1,4 +1,4 @@
-# Quick Sensor Guide
+# Quick Sensor Guide (v1.3.1)
 
 ## 🔴 Universal Input Pins
 
@@ -22,7 +22,7 @@ For common modules, use the following dedicated pins:
 
 ### 1. Temperature & Humidity (DHT11)
 * **Pin:** Connect Signal to **GPIO 16**.
-* **Usage:** Values appear at the bottom of the TFT screen and in the "Env" section of the Web Interface.
+* **Usage:** Values appear at the bottom of the TFT screen and in the "Env" section of the Web Interface (UTF-8 accents supported).
 
 ### 2. Buzzer (Active or Passive)
 * **Pin:** Connect Signal (I/O) to **GPIO 17**.

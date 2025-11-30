@@ -9,6 +9,11 @@
 - Interface web simple et robuste avec les routes `/`, `/data`, `/env`, `/action`.
 - Bascule automatique en AP de secours (`UTB_AP` / `utb12345`) si la STA échoue.
 
+## [1.3.1] - 01-12-2025
+### Corrections
+- L’UI Web renvoie du JSON valide (utilise `null` au lieu de `NaN`), le moniteur réseau affiche désormais correctement les données.
+- Ajout de l’encodage UTF-8 (meta et en-têtes HTTP) pour l’affichage des accents dans l’interface.
+
 # Journal des Modifications (Changelog)
 
 Tous les changements notables du projet "Universal Test Bench" seront documentés ici.

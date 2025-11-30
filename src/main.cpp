@@ -27,7 +27,7 @@ String ipAddress = "OFFLINE";
 // Page HTML (simple et robuste)
 const char INDEX_HTML[] PROGMEM = R"HTML(
 <!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>%PROJECT_NAME% v%VERSION%</title>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>%PROJECT_NAME% v%VERSION%</title>
 <style>body{font-family:Segoe UI,Arial;margin:0;background:#111;color:#eee}header{background:#222;padding:12px}h1{margin:0;font-size:18px}
 .wrap{display:flex;flex-wrap:wrap;gap:16px;padding:12px;justify-content:center}
 .card{background:#1c1c1c;border:1px solid #333;border-radius:10px;padding:14px;min-width:240px}
@@ -86,15 +86,20 @@ void startServer(){
     html.replace("%PIN_A%", String(PIN_TEST_ANALOG));
     html.replace("%PIN_D%", String(PIN_TEST_DIGITAL));
     html.replace("%PIN_DHT%", String(PIN_DHT));
-    req->send(200,"text/html",html);
+    req->send(200,"text/html; charset=utf-8",html);
   });
   server.on("/data", HTTP_GET, [](AsyncWebServerRequest* req){
     String json="{\"analog\":"+String(valAnalog)+",\"digital\":"+String(valDigital==HIGH?1:0)+"}";
-    req->send(200,"application/json",json);
+    req->send(200,"application/json; charset=utf-8",json);
   });
   server.on("/env", HTTP_GET, [](AsyncWebServerRequest* req){
-    String json="{\"temp\":"+String(isnan(temp)?NAN:temp)+",\"hum\":"+String(isnan(hum)?NAN:hum)+"}";
-    req->send(200,"application/json",json);
+    // JSON ne supporte pas NaN : utiliser null quand valeur inconnue
+    String json = "{\"temp\":";
+    if (isnan(temp)) json += "null"; else json += String(temp);
+    json += ",\"hum\":";
+    if (isnan(hum)) json += "null"; else json += String(hum);
+    json += "}";
+    req->send(200,"application/json; charset=utf-8",json);
   });
   server.on("/action", HTTP_GET, [](AsyncWebServerRequest* req){
     if(req->hasParam("type")){

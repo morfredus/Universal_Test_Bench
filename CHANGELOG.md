@@ -13,6 +13,11 @@
 - Simple, robust web UI with routes `/`, `/data`, `/env`, `/action`.
 - Automatic fallback AP (`UTB_AP` / `utb12345`) when STA fails.
 
+# [1.3.1] - 2025-12-01
+### Fixed
+- Web UI sends valid JSON (uses `null` instead of `NaN`) so the network monitor displays data reliably.
+- Added UTF-8 meta and response headers so accents render correctly in the web UI.
+
 # Changelog
 
 All notable changes to the "Universal Test Bench" project will be documented in this file.

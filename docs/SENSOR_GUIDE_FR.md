@@ -1,4 +1,4 @@
-# Guide Rapide des Capteurs
+# Guide Rapide des Capteurs (v1.3.1)
 
 ## 🔴 Broches d'Entrée Universelles
 
@@ -22,7 +22,7 @@ Pour les modules courants, utilisez les broches dédiées suivantes :
 
 ### 1. Température & Humidité (DHT11)
 * **Branchement :** Signal sur **GPIO 16**.
-* **Utilisation :** Les valeurs s'affichent en bas de l'écran TFT et dans la section "Env" de l'interface Web.
+* **Utilisation :** Les valeurs s'affichent en bas de l'écran TFT et dans la section "Env" de l'interface Web (accents UTF-8 pris en charge).
 
 ### 2. Buzzer (Actif ou Passif)
 * **Branchement :** Signal (I/O) sur **GPIO 17**.

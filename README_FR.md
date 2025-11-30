@@ -1,13 +1,13 @@
 # Universal Test Bench (Banc d'Essai Universel) 🛠️
 
-**Version :** 1.2.2  
+**Version :** 1.3.1  
 **Carte :** ESP32-S3 DevKitC-1 (N16R8)  
 **Framework :** Arduino (via PlatformIO)
 
 ## 📖 Présentation
 Le **Universal Test Bench** est un outil de diagnostic pour tester rapidement des capteurs courants (numériques/analogiques) ainsi que des modules spécifiques (DHT, Buzzer) sans reprogrammer la carte. Il affiche les données en temps réel sur un écran TFT et via une interface Web.
 
-## ✨ Fonctionnalités (v1.2.2)
+## ✨ Fonctionnalités (v1.3.1)
 * **Diagnostics WiFi :** MAC, événements, affichage périodique de l’IP.
 * **AP de secours :** Création de `UTB_AP` si la connexion standard échoue.
 * **mDNS :** Accès via `http://utb.local` (si pris en charge).
@@ -15,7 +15,7 @@ Le **Universal Test Bench** est un outil de diagnostic pour tester rapidement de
 * **Support Spécial :** Prise en charge native du DHT11/22, du Buzzer et du NeoPixel intégré.
 * **Affichage Temps Réel :**
     * **Écran TFT :** Affiche les valeurs, états logiques, température et humidité.
-    * **Interface Web :** Tableau de bord avec boutons d'action pour tester les sorties (Son/Lumière).
+    * **Interface Web :** Tableau de bord avec boutons d'action; accents UTF-8 pris en charge; le moniteur réseau affiche correctement les données.
     * **Moniteur Série :** Affichage complet des informations réseau au démarrage (IP, SSID, RSSI, DNS).
 * **Configuration Centralisée :** Nom et Version gérés dans `platformio.ini`.
 
