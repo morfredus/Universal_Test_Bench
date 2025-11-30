@@ -1,10 +1,13 @@
 ## [1.2.2] - 30-11-2025
 ### Ajouts
-- Diagnostics WiFi détaillés (scan réseaux, MAC, événements) et journal périodique de l’IP.
-- Service mDNS (`utb.local`).
-- Point d’accès de secours (`UTB_AP`) en cas d’échec de connexion STA.
 ### Modifications
-- Sortie Série améliorée pour rendre l’IP immédiatement visible à la connexion et en reconnection.
+
+# [1.3.0] - 2025-12-01
+### Modifications
+- Réécriture complète de `src/main.cpp` pour fiabiliser la connexion WiFi, afficher l'IP périodiquement dans le Moniteur Série et fournir un tableau de bord web fonctionnel.
+### Ajouts
+- Interface web simple et robuste avec les routes `/`, `/data`, `/env`, `/action`.
+- Bascule automatique en AP de secours (`UTB_AP` / `utb12345`) si la STA échoue.
 
 # Journal des Modifications (Changelog)
 

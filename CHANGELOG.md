@@ -5,6 +5,13 @@
 - Fallback Access Point (`UTB_AP`) when STA connection fails.
 ### Changed
 - Improved initial and reconnect Serial output for clearer IP visibility.
+ 
+# [1.3.0] - 2025-12-01
+### Changed
+- Full rewrite of `src/main.cpp` to ensure reliable WiFi connection, periodic IP display in Serial Monitor, and a functional web dashboard.
+### Added
+- Simple, robust web UI with routes `/`, `/data`, `/env`, `/action`.
+- Automatic fallback AP (`UTB_AP` / `utb12345`) when STA fails.
 
 # Changelog
 
