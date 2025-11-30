@@ -1,3 +1,11 @@
+## [1.2.2] - 30-11-2025
+### Ajouts
+- Diagnostics WiFi détaillés (scan réseaux, MAC, événements) et journal périodique de l’IP.
+- Service mDNS (`utb.local`).
+- Point d’accès de secours (`UTB_AP`) en cas d’échec de connexion STA.
+### Modifications
+- Sortie Série améliorée pour rendre l’IP immédiatement visible à la connexion et en reconnection.
+
 # Journal des Modifications (Changelog)
 
 Tous les changements notables du projet "Universal Test Bench" seront documentés ici.
@@ -5,6 +13,11 @@ Tous les changements notables du projet "Universal Test Bench" seront documenté
 ## [1.2.0] - 30-11-2025
 ### Ajouts
 - Affichage des informations réseau dans le Moniteur Série (IP, Passerelle, DNS, SSID, RSSI).
+## [1.2.1] - 30-11-2025
+### Corrections
+- Connexion WiFi plus robuste et journaux du Moniteur Série plus explicites (IP et URL Web à la connexion ; rappel périodique de l’IP).
+- Documentation mise à jour : suppression des références au kit, guides capteurs rendus universels.
+
 
 ### Modifications
 - Suppression des dépendances inutilisées (UniversalTelegramBot, ArduinoJson) pour éliminer les avertissements de dépréciation.

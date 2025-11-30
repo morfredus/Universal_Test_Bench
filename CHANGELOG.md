@@ -1,3 +1,11 @@
+# [1.2.2] - 2025-11-30
+### Added
+- Detailed WiFi diagnostics (scan results, MAC, event logging) and periodic IP logging.
+- mDNS responder (`utb.local`).
+- Fallback Access Point (`UTB_AP`) when STA connection fails.
+### Changed
+- Improved initial and reconnect Serial output for clearer IP visibility.
+
 # Changelog
 
 All notable changes to the "Universal Test Bench" project will be documented in this file.
@@ -5,6 +13,11 @@ All notable changes to the "Universal Test Bench" project will be documented in 
 ## [1.2.0] - 2025-11-30
 ### Added
 - Network information display in Serial Monitor (IP, Gateway, DNS, SSID, RSSI).
+# [1.2.1] - 2025-11-30
+### Fixed
+- More robust WiFi connection handling and clearer Serial Monitor logs (IP and Web URL shown on connect; periodic IP status).
+- Documentation updated to remove kit-specific references; sensor guides made universal.
+
 
 ### Changed
 - Removed unused dependencies (UniversalTelegramBot, ArduinoJson) to eliminate deprecation warnings.

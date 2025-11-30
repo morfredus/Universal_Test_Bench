@@ -1,13 +1,16 @@
 # Universal Test Bench 🛠️
 
-**Version:** 1.2.0  
+**Version:** 1.2.2  
 **Board:** ESP32-S3 DevKitC-1 (N16R8)  
 **Framework:** Arduino (via PlatformIO)
 
 ## 📖 Overview
-The **Universal Test Bench** is a diagnostic tool designed for the "45-in-1 Sensor Kit". It allows you to instantly test digital and analog sensors, as well as specific modules like DHT and Buzzers, without rewriting code. It visualizes data in real-time on a TFT screen and a responsive Web Interface.
+The **Universal Test Bench** is a diagnostic tool to quickly test common digital and analog sensors, and specific modules like DHT and Buzzers, without rewriting code. It visualizes data in real-time on a TFT screen and a responsive Web Interface.
 
-## ✨ Features (v1.2.0)
+## ✨ Features (v1.2.2)
+* **WiFi Diagnostics:** MAC, event logs, periodic IP print.
+* **Fallback AP:** Creates `UTB_AP` if normal connection fails.
+* **mDNS:** Access via `http://utb.local` when supported.
 * **Universal Testing:** Dedicated pins for Analog and Digital sensors.
 * **Special Support:** Built-in drivers for DHT11/22, Buzzer, and the Onboard NeoPixel.
 * **Real-time Display:**

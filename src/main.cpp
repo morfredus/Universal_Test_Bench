@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
+#include <ESPmDNS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <Adafruit_GFX.h>
@@ -155,6 +156,8 @@ void updateTFT_Env() {
 
 void setup() {
   Serial.begin(115200);
+  delay(50); // Laisser le temps au port série de s'initialiser
+  Serial.println("[BOOT] START");
   pinMode(PIN_TEST_ANALOG, INPUT);
   pinMode(PIN_TEST_DIGITAL, INPUT_PULLUP);
   pinMode(PIN_BUZZER, OUTPUT); digitalWrite(PIN_BUZZER, LOW);
@@ -170,20 +173,47 @@ void setup() {
   tft.fillScreen(C_BLACK);
   tft.setTextColor(C_WHITE); tft.setCursor(20, 100); tft.setTextSize(2); tft.print("CONNECTING...");
 
-  wifiMulti.addAP(ssid_1, password_1); wifiMulti.addAP(ssid_2, password_2);
+  Serial.println("[BOOT] Init WiFi STA");
+  WiFi.mode(WIFI_STA);
+  Serial.print("[MAC] "); Serial.println(WiFi.macAddress());
+  // Ajout des SSID connus
+  wifiMulti.addAP(ssid_1, password_1);
+  wifiMulti.addAP(ssid_2, password_2);
+
+  // Handler simple des évènements WiFi (réduit)
+  WiFi.onEvent([](arduino_event_t *event){
+    if (event->event_id == ARDUINO_EVENT_WIFI_STA_GOT_IP) {
+      Serial.print("[IP] "); Serial.println(WiFi.localIP());
+    } else if (event->event_id == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
+      Serial.println("[EVENT] DISCONNECTED");
+    }
+  });
+
+  // Tentatives de connexion STA
   int attempts = 0;
-  while(wifiMulti.run() != WL_CONNECTED && attempts < 10) { delay(500); attempts++; }
-  ipAddress = (wifiMulti.run() == WL_CONNECTED) ? WiFi.localIP().toString() : "OFFLINE";
+  while (wifiMulti.run() != WL_CONNECTED && attempts < 25) {
+    attempts++;
+    if (attempts % 5 == 1) Serial.printf("[WiFi] Tentative %d...\n", attempts);
+    delay(400);
+  }
+  bool connected = (wifiMulti.run() == WL_CONNECTED);
+  if (connected) {
+    ipAddress = WiFi.localIP().toString();
+  } else {
+    ipAddress = "OFFLINE";
+  }
 
   // Journal de connexion réseau (toujours affiché au démarrage)
-  Serial.println("\n===== Réseau =====");
-  if (wifiMulti.run() == WL_CONNECTED) {
+  Serial.println("\n===== Réseau (Phase Initiale) =====");
+  if (connected) {
     Serial.println("WiFi connecté");
     Serial.print("SSID: "); Serial.println(WiFi.SSID());
     Serial.print("IP: "); Serial.println(ipAddress);
     Serial.print("Passerelle: "); Serial.println(WiFi.gatewayIP());
     Serial.print("DNS: "); Serial.println(WiFi.dnsIP());
     Serial.print("RSSI: "); Serial.print(WiFi.RSSI()); Serial.println(" dBm");
+    // MDNS (retardé)
+    if (MDNS.begin("utb")) Serial.println("[mDNS] utb.local prêt");
 
     // Clignotement NeoPixel en vert pour indiquer la connexion
     for (int i = 0; i < 3; i++) {
@@ -195,25 +225,34 @@ void setup() {
       delay(150);
     }
   } else {
-    Serial.println("WiFi non connecté (OFFLINE)");
+    Serial.println("[WARN] WiFi non connecté -> AP secours");
+    WiFi.mode(WIFI_AP);
+    bool ap = WiFi.softAP("UTB_AP", "utb12345");
+    delay(200);
+    IPAddress apIP = WiFi.softAPIP();
+    Serial.print("[AP] Etat: "); Serial.println(ap ? "OK" : "ECHEC");
+    Serial.print("[AP] SSID: UTB_AP  Pass: utb12345  IP: "); Serial.println(apIP);
+    ipAddress = apIP.toString();
   }
   Serial.println("===================\n");
   
   // Affichage dans le moniteur série
   Serial.println("\n========================================");
-  if (wifiMulti.run() == WL_CONNECTED) {
+  if (connected) {
     Serial.println("WiFi connecté !");
     Serial.print("SSID: "); Serial.println(WiFi.SSID());
     Serial.print("Adresse IP: "); Serial.println(ipAddress);
     Serial.print("Passerelle: "); Serial.println(WiFi.gatewayIP());
     Serial.print("DNS: "); Serial.println(WiFi.dnsIP());
     Serial.print("Puissance signal (RSSI): "); Serial.print(WiFi.RSSI()); Serial.println(" dBm");
+    Serial.print("Dashboard: http://"); Serial.println(ipAddress);
+    Serial.println("mDNS (si supporté): http://utb.local");
   } else {
     Serial.println("Échec de connexion WiFi - Mode OFFLINE");
   }
   Serial.println("========================================\n");
 
-  // Web Server
+  // Web Server (routes)
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     String html = index_html;
     html.replace("%PROJECT_NAME%", PROJECT_NAME); // Injection auto
@@ -246,8 +285,10 @@ void setup() {
     request->send(200, "text/plain", "OK");
   });
 
+  // Démarrer le serveur uniquement après la configuration
   server.begin();
   drawBaseInterface();
+  tft.setTextColor(C_WHITE); tft.fillRect(25, 45, 200, 12, C_BLACK); tft.setCursor(25, 45); tft.print(ipAddress);
 }
 
 void loop() {
@@ -258,13 +299,26 @@ void loop() {
     if (currentStatus == WL_CONNECTED) {
       ipAddress = WiFi.localIP().toString();
       Serial.print("[WiFi] Connecté - IP: "); Serial.println(ipAddress);
+      Serial.print("[HTTP] Dashboard: http://"); Serial.println(ipAddress);
       // Clignote vert une fois à la reconnexion
       pixels.setPixelColor(0, pixels.Color(0, 150, 0)); pixels.show(); delay(200);
       pixels.clear(); pixels.show();
+      // Rafraîchir l'IP sur le TFT
+      tft.setTextColor(C_WHITE); tft.fillRect(25, 45, 200, 12, C_BLACK); tft.setCursor(25, 45); tft.print(ipAddress);
+      // Tentative mDNS après reconnexion
+      MDNS.end();
+      if (MDNS.begin("utb")) Serial.println("[mDNS] Reconnect OK");
     } else {
       Serial.println("[WiFi] Déconnecté");
     }
     lastStatus = currentStatus;
+  }
+
+  // Journal périodique: réaffiche l'IP toutes les 10s si connecté
+  static unsigned long lastNetLog = 0;
+  if (currentStatus == WL_CONNECTED && millis() - lastNetLog > 10000) {
+    Serial.print("[WiFi] IP actuelle: "); Serial.println(WiFi.localIP());
+    lastNetLog = millis();
   }
 
   long sum = 0; for(int i=0; i<10; i++){ sum += analogRead(PIN_TEST_ANALOG); delay(1); }
