@@ -1,6 +1,6 @@
 # Universal Test Bench 🛠️
 
-**Version:** 1.3.1  
+**Version:** 1.3.2  
 **Board:** ESP32-S3 DevKitC-1 (N16R8)  
 **Framework:** Arduino (via PlatformIO)
 
@@ -16,7 +16,7 @@ The **Universal Test Bench** is a diagnostic tool to quickly test common digital
 * **Real-time Display:**
     * **TFT Screen (ST7789):** Shows raw values, voltage, logic states, and environment data (Temp/Hum).
     * **Web Dashboard:** Responsive interface with action buttons; UTF-8 accents supported; network monitor reliably shows data.
-    * **Serial Monitor:** Complete network information display on startup (IP, SSID, RSSI, DNS).
+    * **Serial Monitor:** Detailed WiFi info on startup and periodically (IP, SSID, RSSI, DNS, mode). PSRAM detection logged.
 * **WiFi Multi:** Automatically connects to known networks defined in `secrets.h`.
 
 ## 🚀 Installation

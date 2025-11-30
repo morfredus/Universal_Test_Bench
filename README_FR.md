@@ -1,6 +1,6 @@
 # Universal Test Bench (Banc d'Essai Universel) 🛠️
 
-**Version :** 1.3.1  
+**Version :** 1.3.2  
 **Carte :** ESP32-S3 DevKitC-1 (N16R8)  
 **Framework :** Arduino (via PlatformIO)
 
@@ -16,7 +16,7 @@ Le **Universal Test Bench** est un outil de diagnostic pour tester rapidement de
 * **Affichage Temps Réel :**
     * **Écran TFT :** Affiche les valeurs, états logiques, température et humidité.
     * **Interface Web :** Tableau de bord avec boutons d'action; accents UTF-8 pris en charge; le moniteur réseau affiche correctement les données.
-    * **Moniteur Série :** Affichage complet des informations réseau au démarrage (IP, SSID, RSSI, DNS).
+    * **Moniteur Série :** Informations WiFi détaillées au démarrage et périodiquement (IP, SSID, RSSI, DNS, mode). Détection PSRAM affichée.
 * **Configuration Centralisée :** Nom et Version gérés dans `platformio.ini`.
 
 ## 🔌 Câblage et Pinout

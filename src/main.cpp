@@ -113,7 +113,14 @@ void startServer(){
 }
 
 void setup(){
-  Serial.begin(115200); delay(60); Serial.println("[BOOT] START");
+  Serial.begin(115200); delay(120);
+  Serial.println("\n[BOOT] Universal Test Bench");
+  Serial.printf("[VERSION] %s\n", PROJECT_VERSION);
+  Serial.printf("[CPU] Freq: %d MHz\n", getCpuFrequencyMhz());
+  // PSRAM & Flash
+  bool psram = psramFound();
+  Serial.printf("[PSRAM] Present: %s | Size: %u bytes\n", psram?"YES":"NO", ESP.getPsramSize());
+  Serial.printf("[Flash] Size: %u bytes | Speed: %u Hz\n", ESP.getFlashChipSize(), ESP.getFlashChipSpeed());
 
   // Pins & périphériques
   pinMode(PIN_TEST_ANALOG, INPUT);
@@ -127,13 +134,15 @@ void setup(){
   wifiMulti.addAP(ssid_1, password_1);
   wifiMulti.addAP(ssid_2, password_2);
 
-  Serial.print("[MAC] "); Serial.println(WiFi.macAddress());
-  int attempts=0; while(wifiMulti.run()!=WL_CONNECTED && attempts<30){ attempts++; if(attempts%5==1) Serial.printf("[WiFi] Tentative %d...\n", attempts); delay(400);} 
+  Serial.printf("[WiFi] Mode: STA | MAC: %s\n", WiFi.macAddress().c_str());
+  Serial.println("[WiFi] Connexion en cours (WiFiMulti)...");
+  int attempts=0; while(wifiMulti.run()!=WL_CONNECTED && attempts<40){ attempts++; if(attempts%5==1) Serial.printf("[WiFi] Tentative %d...\n", attempts); delay(300);} 
 
   if(WiFi.status()==WL_CONNECTED){
     ipAddress=WiFi.localIP().toString();
     Serial.print("[WiFi] Connecté - IP: "); Serial.println(ipAddress);
     printNetInfo();
+    Serial.printf("[WiFi] SSID: %s | RSSI: %d dBm\n", WiFi.SSID().c_str(), WiFi.RSSI());
     blinkGreen(3,120);
     startServer();
     Serial.print("[HTTP] Dashboard: http://"); Serial.println(ipAddress);
@@ -143,6 +152,7 @@ void setup(){
     WiFi.softAP("UTB_AP","utb12345"); delay(150);
     ipAddress=WiFi.softAPIP().toString();
     Serial.print("[AP] SSID: UTB_AP  Pass: utb12345  IP: "); Serial.println(ipAddress);
+    Serial.println("[AP] Accès Dashboard via IP ci-dessus.");
     startServer();
     Serial.print("[HTTP] Dashboard: http://"); Serial.println(ipAddress);
   }
@@ -156,6 +166,13 @@ void loop(){
   static unsigned long lastEnv=0; if(millis()-lastEnv>2000){ float t=dht.readTemperature(); float h=dht.readHumidity(); if(!isnan(t)) temp=t; if(!isnan(h)) hum=h; lastEnv=millis(); }
 
   // Journal périodique IP pour visibilité
-  static unsigned long lastLog=0; if(millis()-lastLog>10000){ if(WiFi.getMode()==WIFI_STA && WiFi.status()==WL_CONNECTED){ Serial.print("[WiFi] IP: "); Serial.println(WiFi.localIP()); } lastLog=millis(); }
+  static unsigned long lastLog=0; if(millis()-lastLog>10000){ 
+    if(WiFi.getMode()==WIFI_STA && WiFi.status()==WL_CONNECTED){ 
+      Serial.printf("[WiFi] IP: %s | SSID: %s | RSSI: %d dBm\n", WiFi.localIP().toString().c_str(), WiFi.SSID().c_str(), WiFi.RSSI()); 
+    } else if(WiFi.getMode()==WIFI_AP){
+      Serial.printf("[AP] IP: %s | Clients: %d\n", WiFi.softAPIP().toString().c_str(), WiFi.softAPgetStationNum());
+    }
+    lastLog=millis(); 
+  }
 }
  

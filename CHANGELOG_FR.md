@@ -14,6 +14,10 @@
 - L’UI Web renvoie du JSON valide (utilise `null` au lieu de `NaN`), le moniteur réseau affiche désormais correctement les données.
 - Ajout de l’encodage UTF-8 (meta et en-têtes HTTP) pour l’affichage des accents dans l’interface.
 
+## [1.3.2] - 01-12-2025
+### Ajouts
+- Le Moniteur Série affiche désormais le statut WiFi détaillé (SSID, IP, RSSI, DNS, mode) à la connexion et périodiquement.
+- Détection de la PSRAM ajoutée aux logs de démarrage (présence et taille), ainsi que la taille/vitesse de la Flash.
 # Journal des Modifications (Changelog)
 
 Tous les changements notables du projet "Universal Test Bench" seront documentés ici.

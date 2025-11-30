@@ -18,6 +18,10 @@
 - Web UI sends valid JSON (uses `null` instead of `NaN`) so the network monitor displays data reliably.
 - Added UTF-8 meta and response headers so accents render correctly in the web UI.
 
+# [1.3.2] - 2025-12-01
+### Added
+- Serial Monitor now prints detailed WiFi status (SSID, IP, RSSI, DNS, mode) on connect and periodically.
+- PSRAM detection added to boot logs (presence and size), plus flash chip size/speed.
 # Changelog
 
 All notable changes to the "Universal Test Bench" project will be documented in this file.
