@@ -23,6 +23,27 @@ int valDigital = 0;
 float temp = NAN;
 float hum = NAN;
 String ipAddress = "OFFLINE";
+static bool staIpPrinted=false;
+
+// Gestion des événements WiFi pour logs uniquement sur (re)connexion/déconnexion
+static void onWifiEvent(WiFiEvent_t event){
+  switch(event){
+    case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+      Serial.println("[WiFi] STA associée au SSID");
+      break;
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+      ipAddress = WiFi.localIP().toString();
+      Serial.printf("[WiFi] IP: %s | SSID: %s | RSSI: %d dBm\n", WiFi.localIP().toString().c_str(), WiFi.SSID().c_str(), WiFi.RSSI());
+      staIpPrinted=true;
+      break;
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+      Serial.println("[WiFi] Déconnexion STA");
+      staIpPrinted=false;
+      break;
+    default:
+      break;
+  }
+}
 
 // Page HTML (simple et robuste)
 const char INDEX_HTML[] PROGMEM = R"HTML(
@@ -131,6 +152,7 @@ void setup(){
 
   // WiFi STA
   WiFi.mode(WIFI_STA);
+  WiFi.onEvent(onWifiEvent);
   wifiMulti.addAP(ssid_1, password_1);
   wifiMulti.addAP(ssid_2, password_2);
 
@@ -165,14 +187,17 @@ void loop(){
 
   static unsigned long lastEnv=0; if(millis()-lastEnv>2000){ float t=dht.readTemperature(); float h=dht.readHumidity(); if(!isnan(t)) temp=t; if(!isnan(h)) hum=h; lastEnv=millis(); }
 
-  // Journal périodique IP pour visibilité
-  static unsigned long lastLog=0; if(millis()-lastLog>10000){ 
-    if(WiFi.getMode()==WIFI_STA && WiFi.status()==WL_CONNECTED){ 
-      Serial.printf("[WiFi] IP: %s | SSID: %s | RSSI: %d dBm\n", WiFi.localIP().toString().c_str(), WiFi.SSID().c_str(), WiFi.RSSI()); 
-    } else if(WiFi.getMode()==WIFI_AP){
-      Serial.printf("[AP] IP: %s | Clients: %d\n", WiFi.softAPIP().toString().c_str(), WiFi.softAPgetStationNum());
-    }
-    lastLog=millis(); 
+  // Journal connexion unique: n'afficher l'IP qu'une seule fois en STA
+  static bool staIpPrinted=false;
+  if(!staIpPrinted && WiFi.getMode()==WIFI_STA && WiFi.status()==WL_CONNECTED){
+    Serial.printf("[WiFi] IP: %s | SSID: %s | RSSI: %d dBm\n", WiFi.localIP().toString().c_str(), WiFi.SSID().c_str(), WiFi.RSSI());
+    staIpPrinted=true;
   }
+  // En mode AP, on peut afficher ponctuellement le nombre de clients (optionnel)
+  // Désactivé pour éviter le spam; décommentez si nécessaire.
+  // static unsigned long lastApLog=0; if(WiFi.getMode()==WIFI_AP && millis()-lastApLog>15000){
+  //   Serial.printf("[AP] Clients: %d\n", WiFi.softAPgetStationNum());
+  //   lastApLog=millis();
+  // }
 }
  

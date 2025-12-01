@@ -22,6 +22,10 @@
 ### Added
 - Serial Monitor now prints detailed WiFi status (SSID, IP, RSSI, DNS, mode) on connect and periodically.
 - PSRAM detection added to boot logs (presence and size), plus flash chip size/speed.
+
+# [1.3.3] - 2025-12-01
+### Changed
+- Serial logging policy: now silent during normal operation; prints only on (re)connection and disconnection events. Avoids repeated IP printing.
 # Changelog
 
 All notable changes to the "Universal Test Bench" project will be documented in this file.

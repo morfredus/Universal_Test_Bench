@@ -18,6 +18,10 @@
 ### Ajouts
 - Le Moniteur Série affiche désormais le statut WiFi détaillé (SSID, IP, RSSI, DNS, mode) à la connexion et périodiquement.
 - Détection de la PSRAM ajoutée aux logs de démarrage (présence et taille), ainsi que la taille/vitesse de la Flash.
+
+## [1.3.3] - 01-12-2025
+### Modifications
+- Politique des logs série: désormais silencieux en fonctionnement normal; impression seulement lors des événements de (re)connexion et de déconnexion. Évite les répétitions d’IP.
 # Journal des Modifications (Changelog)
 
 Tous les changements notables du projet "Universal Test Bench" seront documentés ici.
