@@ -9,6 +9,7 @@
 #include <ESPAsyncWebServer.h>
 #include <DHT.h>
 #include <Adafruit_NeoPixel.h>
+#include <esp_heap_caps.h>
 #include "config.h"
 
 // Objets globaux minimaux pour robustesse
@@ -140,7 +141,16 @@ void setup(){
   Serial.printf("[CPU] Freq: %d MHz\n", getCpuFrequencyMhz());
   // PSRAM & Flash
   bool psram = psramFound();
-  Serial.printf("[PSRAM] Present: %s | Size: %u bytes\n", psram?"YES":"NO", ESP.getPsramSize());
+  if(!psram){
+    // Essayer une init explicite au cas où
+    psramInit();
+    psram = psramFound();
+  }
+  size_t psramBytes = ESP.getPsramSize();
+  size_t psramHeapTotal = heap_caps_get_total_size(MALLOC_CAP_SPIRAM);
+  size_t psramHeapFree  = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+  Serial.printf("[PSRAM] Present: %s | Size: %u bytes | Heap total: %u | Heap free: %u\n",
+                psram?"YES":"NO", (unsigned)psramBytes, (unsigned)psramHeapTotal, (unsigned)psramHeapFree);
   Serial.printf("[Flash] Size: %u bytes | Speed: %u Hz\n", ESP.getFlashChipSize(), ESP.getFlashChipSpeed());
 
   // Pins & périphériques
