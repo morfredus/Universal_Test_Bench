@@ -1,3 +1,38 @@
+## [1.4.2] - 15-12-2025
+### Améliorations
+- Optimisation de l'affichage TFT pour éliminer l'effet rideau
+- Mise à jour partielle de l'écran (seules les zones dynamiques sont redessinées)
+- Fréquence de rafraîchissement augmentée à 1 seconde pour plus de réactivité
+- Séparation de l'interface statique (`initTFTLayout()`) et des données dynamiques (`updateTFTDisplay()`)
+
+## [1.4.1] - 15-12-2025
+### Corrections
+- Configuration correcte du TFT ST7789 avec le bus SPI matériel (`&SPI`)
+- Ajout de l'initialisation explicite du bus SPI avec les pins définies dans `config.h`
+- Inclusion de `<SPI.h>` pour le support SPI
+
+## [1.4.0] - 15-12-2025
+### Ajouts
+- Support complet de l'écran TFT ST7789 (240x240) avec affichage couleur
+- Affichage du titre du projet, version, informations réseau (IP, SSID, RSSI)
+- Affichage en temps réel des capteurs (température, humidité, analog, digital)
+- Affichage du statut système (mémoire libre, fréquence CPU, uptime)
+- Interface graphique avec palette de couleurs optimisée pour la lisibilité
+- Gestion du rétroéclairage TFT (PIN_TFT_BL)
+
+## [1.3.5] - 15-12-2025
+### Corrections
+- Correction des pins de test : `PIN_TEST_ANALOG` = GPIO 1, `PIN_TEST_DIGITAL` = GPIO 14
+- Sélection de GPIO libres et compatibles pour l'ESP32-S3
+
+## [1.3.4] - 15-12-2025
+### Corrections
+- Ajout des constantes manquantes dans `config.h` :
+  - `PIN_TEST_ANALOG` et `PIN_TEST_DIGITAL` pour les tests de broches
+  - `DHT_TYPE` pour le type de capteur DHT (DHT22)
+  - `NUM_PIXELS` et `NEO_BRIGHTNESS` pour la configuration NeoPixel
+- Synchronisation complète entre `main.cpp` et `config.h`
+
 ## [1.2.2] - 30-11-2025
 ### Ajouts
 ### Modifications

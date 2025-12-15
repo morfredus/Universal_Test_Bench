@@ -7,8 +7,10 @@
 #include <WiFiMulti.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <SPI.h>
 #include <DHT.h>
 #include <Adafruit_NeoPixel.h>
+#include <Adafruit_ST7789.h>
 #include <esp_heap_caps.h>
 #include "config.h"
 
@@ -17,6 +19,7 @@ WiFiMulti wifiMulti;
 AsyncWebServer server(80);
 DHT dht(PIN_DHT, DHT_TYPE);
 Adafruit_NeoPixel pixels(NUM_PIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+Adafruit_ST7789 tft = Adafruit_ST7789(&SPI, PIN_TFT_CS, PIN_TFT_DC, PIN_TFT_RST);
 
 // Etats capteurs
 int valAnalog = 0;
@@ -88,6 +91,140 @@ function act(t){fetch('/action?type='+t).catch(()=>{});}
 static void blinkGreen(uint8_t times=3, uint16_t ms=150){
   for(uint8_t i=0;i<times;i++){ pixels.setPixelColor(0,pixels.Color(0,150,0)); pixels.show(); delay(ms); pixels.clear(); pixels.show(); delay(ms);} }
 
+void initTFTLayout(){
+  // Dessine la structure statique une seule fois
+  tft.fillScreen(C_BLACK);
+  
+  // En-tête avec titre et version
+  tft.fillRect(0, 0, 240, 40, C_BLUE);
+  tft.setTextColor(C_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(10, 5);
+  tft.println(PROJECT_NAME);
+  tft.setTextSize(1);
+  tft.setCursor(10, 25);
+  tft.print("v"); tft.println(PROJECT_VERSION);
+  
+  // Titres des sections
+  tft.setTextSize(2);
+  tft.setTextColor(C_YELLOW);
+  tft.setCursor(5, 50);
+  tft.println("RESEAU");
+  
+  tft.setTextColor(C_CYAN);
+  tft.setCursor(5, 115);
+  tft.println("CAPTEURS");
+  
+  // Labels statiques
+  tft.setTextSize(1);
+  tft.setTextColor(C_WHITE);
+  tft.setCursor(5, 70); tft.print("IP:");
+  tft.setCursor(5, 82); tft.print("SSID:");
+  tft.setCursor(5, 94); tft.print("RSSI:");
+  tft.setCursor(5, 135); tft.print("Temp:");
+  tft.setCursor(5, 147); tft.print("Humid:");
+  tft.setCursor(5, 159); tft.print("Analog:");
+  tft.setCursor(5, 171); tft.print("Digital:");
+  
+  // Footer statique
+  tft.fillRect(0, 200, 240, 40, C_DKGREY);
+  tft.setTextColor(C_WHITE);
+  tft.setCursor(5, 210);
+  tft.print("CPU: ");
+  tft.print(getCpuFrequencyMhz());
+  tft.println(" MHz");
+}
+
+void updateTFTDisplay(){
+  // Efface et redessine uniquement les zones dynamiques
+  
+  // Section Réseau - IP
+  tft.fillRect(30, 70, 210, 10, C_BLACK);
+  tft.setTextSize(1);
+  tft.setCursor(30, 70);
+  if(WiFi.status() == WL_CONNECTED){
+    tft.setTextColor(C_GREEN);
+    tft.print(WiFi.localIP());
+  } else {
+    tft.setTextColor(C_RED);
+    tft.print(ipAddress);
+  }
+  
+  // SSID
+  tft.fillRect(40, 82, 200, 10, C_BLACK);
+  tft.setTextColor(C_WHITE);
+  tft.setCursor(40, 82);
+  if(WiFi.status() == WL_CONNECTED){
+    tft.print(WiFi.SSID());
+  } else {
+    tft.print("--");
+  }
+  
+  // RSSI
+  tft.fillRect(40, 94, 200, 10, C_BLACK);
+  tft.setCursor(40, 94);
+  if(WiFi.status() == WL_CONNECTED){
+    tft.print(WiFi.RSSI()); tft.print(" dBm");
+  } else {
+    tft.print("--");
+  }
+  
+  // Température
+  tft.fillRect(50, 135, 190, 10, C_BLACK);
+  tft.setCursor(50, 135);
+  if(!isnan(temp)){
+    tft.setTextColor(C_GREEN);
+    tft.print(temp, 1); tft.print(" C");
+  } else {
+    tft.setTextColor(C_DKGREY);
+    tft.print("--");
+  }
+  
+  // Humidité
+  tft.fillRect(55, 147, 185, 10, C_BLACK);
+  tft.setTextColor(C_WHITE);
+  tft.setCursor(55, 147);
+  if(!isnan(hum)){
+    tft.setTextColor(C_GREEN);
+    tft.print(hum, 1); tft.print(" %");
+  } else {
+    tft.setTextColor(C_DKGREY);
+    tft.print("--");
+  }
+  
+  // Analogique
+  tft.fillRect(60, 159, 180, 10, C_BLACK);
+  tft.setTextColor(C_ORANGE);
+  tft.setCursor(60, 159);
+  tft.print(valAnalog);
+  tft.setTextColor(C_DKGREY);
+  tft.print(" (");
+  tft.print((valAnalog*3.3/4095.0), 2);
+  tft.print("V)");
+  
+  // Digital
+  tft.fillRect(65, 171, 175, 10, C_BLACK);
+  tft.setCursor(65, 171);
+  if(valDigital == HIGH){
+    tft.setTextColor(C_GREEN);
+    tft.print("HIGH");
+  } else {
+    tft.setTextColor(C_DKGREY);
+    tft.print("LOW");
+  }
+  
+  // Footer dynamique - Mémoire et Uptime
+  tft.fillRect(5, 220, 230, 12, C_DKGREY);
+  tft.setTextColor(C_WHITE);
+  tft.setCursor(5, 222);
+  tft.print("Free: ");
+  tft.print(ESP.getFreeHeap()/1024);
+  tft.print("KB | ");
+  unsigned long secs = millis()/1000;
+  tft.print(secs/3600); tft.print("h ");
+  tft.print((secs%3600)/60); tft.print("m");
+}
+
 void printNetInfo(){
   Serial.println("\n=== Réseau ===");
   Serial.print("Mode: "); Serial.println(WiFi.getMode()==WIFI_STA?"STA":"AP");
@@ -157,8 +294,18 @@ void setup(){
   pinMode(PIN_TEST_ANALOG, INPUT);
   pinMode(PIN_TEST_DIGITAL, INPUT_PULLUP);
   pinMode(PIN_BUZZER, OUTPUT); digitalWrite(PIN_BUZZER, LOW);
+  pinMode(PIN_TFT_BL, OUTPUT); digitalWrite(PIN_TFT_BL, HIGH); // Backlight ON
   pixels.begin(); pixels.setBrightness(NEO_BRIGHTNESS); pixels.clear(); pixels.show();
   dht.begin();
+  
+  // Initialisation SPI et TFT
+  Serial.println("[TFT] Initialisation...");
+  SPI.begin(PIN_TFT_SCLK, -1, PIN_TFT_MOSI, PIN_TFT_CS);
+  tft.init(240, 240, SPI_MODE3);
+  tft.setRotation(2); // Portrait
+  tft.fillScreen(C_BLACK);
+  tft.setTextWrap(false);
+  Serial.println("[TFT] OK");
 
   // WiFi STA
   WiFi.mode(WIFI_STA);
@@ -188,6 +335,10 @@ void setup(){
     startServer();
     Serial.print("[HTTP] Dashboard: http://"); Serial.println(ipAddress);
   }
+  
+  // Affichage initial TFT
+  initTFTLayout();
+  updateTFTDisplay();
 }
 
 void loop(){
@@ -196,6 +347,9 @@ void loop(){
   valDigital=digitalRead(PIN_TEST_DIGITAL);
 
   static unsigned long lastEnv=0; if(millis()-lastEnv>2000){ float t=dht.readTemperature(); float h=dht.readHumidity(); if(!isnan(t)) temp=t; if(!isnan(h)) hum=h; lastEnv=millis(); }
+  
+  // Mise à jour TFT toutes les secondes (refresh partiel rapide)
+  static unsigned long lastTFT=0; if(millis()-lastTFT>1000){ updateTFTDisplay(); lastTFT=millis(); }
 
   // Journal connexion unique: n'afficher l'IP qu'une seule fois en STA
   static bool staIpPrinted=false;
